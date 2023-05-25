@@ -1,5 +1,6 @@
 import API
-import datetime
+# import datetime
 
 if __name__ == '__main__':
-    print(str(datetime.datetime(2023, 5, 25, 11, 4))[:16].replace(':', '-'))
+    model_tagger = API.model_tagger()
+    model_tagger.add_sentiment('./评论/2023-05-25 11-04/24岁研究生离世捐器官救多人.csv')
