@@ -1,5 +1,5 @@
 import API
+import datetime
 
 if __name__ == '__main__':
-    a = API.weibo_analyse()
-    a.add_sentiment('./csv/微博清单_浙江59岁孕妇成功产下一女婴_前5页.csv')
+    print(str(datetime.datetime(2023, 5, 25, 11, 4))[:16].replace(':', '-'))

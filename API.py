@@ -2,6 +2,8 @@ from threading import Thread
 from transformers import AutoModelForSequenceClassification,AutoTokenizer,pipeline
 import pandas as pd
 import numpy as np
+from datetime import datetime
+
 
 def call_analyse_key(key: str):
     t = Thread(target=analyse_key, args=[key])
@@ -10,10 +12,8 @@ def call_analyse_key(key: str):
 def analyse_key(key: str):
     pass
 
-class weibo_analyse:
+class model_tagger:
     def __init__(self):
-        self.pathdata = {}
-        self.database = {}
         self.topic_classification_model = AutoModelForSequenceClassification.from_pretrained('uer/roberta-base-finetuned-chinanews-chinese')
         self.topic_classification_tokenizer = AutoTokenizer.from_pretrained('uer/roberta-base-finetuned-chinanews-chinese')
         self.topic_classification_text_classification = pipeline('sentiment-analysis', model=self.topic_classification_model, tokenizer=self.topic_classification_tokenizer)
@@ -24,17 +24,25 @@ class weibo_analyse:
     def sentiment_tag(self, string):
         output = self.sentiment_text_classification(string)
         out=[dic['label'] for dic in output]
-        print(out)
         return out
 
-    def topic_tag(self):
-        pass
+    def topic_tag(self, key):
+        output = self.topic_classification_text_classification(key)
+        out=[dic['label'] for dic in output]
+        return out
+
+
+class weibo_analyse:
+    def __init__(self):
+        self.database = {}
+
 
     def read_csv(self, path):
         return np.array(pd.read_csv(path))
 
-    def add_keywords(self, key: str, path: str):
-        self.pathdata[key] = path
+    def datetime2str(self, time):
+        date_str = str(time.date.year)+'-'+str(time.date.month)+'-'+str(time.date.day)+' '+str(time.hour)+'-'+str(time.minute)
+        return date_str
 
     def add_sentiment(self, path: str):
         Data = pd.read_csv(path)
@@ -46,10 +54,7 @@ class weibo_analyse:
         # 注意这里的ngData['length']=ngList是直接在原有数据基础上加了一列新的数据，也就是说现在的ngData已经具备完整的3列数据
         # 不用再在to_csv中加mode=‘a’这个参数，实现不覆盖添加。
 
-    def topic_classification(self, topic):
-        return self.topic_classification_text_classification(topic)
-
-    def sentiment_analysis_by_topic(self, topic):
+    def sentiment_analysis_by_topic(self, topic, time):
         pass
 
     def sentiment_analysis_by_topic_region(self, topic):

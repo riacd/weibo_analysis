@@ -3,8 +3,8 @@ from datetime import datetime
 
 import API
 
-show_time = st.slider(
-    "When do you start?",
+show_time = st.sidebar.slider(
+    "展示时间",
     value=datetime(2020, 1, 1, 9, 30),
     format="MM/DD/YY - hh:mm")
 st.write("当前展示时间为", show_time)

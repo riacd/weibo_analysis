@@ -8,6 +8,8 @@ from jsonpath import jsonpath  # 解析json数据
 import pandas as pd  # 存取csv文件
 import datetime  # 转换时间用
 import numpy as np
+import API
+
 
 def get_topics():
     url = r'https://www.weibo.cn/'
@@ -20,7 +22,7 @@ def get_topics():
         topics.append(v[2:-5])
     return topics
 
-def get_comments(keyword, max_page, time):
+def get_comments(keyword, max_page, time, model_tagger):
     """
     爬取微博内容列表
     :param keyword: 搜索关键字
@@ -127,6 +129,8 @@ def get_comments(keyword, max_page, time):
                 text2 = dr.sub('', text)  # 正则表达式提取微博内容
                 # print(text2)
                 text2_list.append(text2)
+        # 情感
+        sentiment_list = model_tagger.sentiment_tag(text2_list)
         # 微博创建时间
         time_list = jsonpath(cards, '$..mblog.created_at')
         time_list = [trans_time(v_str=i) for i in time_list]
@@ -170,6 +174,7 @@ def get_comments(keyword, max_page, time):
                 'ip属地_城市': status_city_list,
                 'ip属地_省份': status_province_list,
                 'ip属地_国家': status_country_list,
+                '情感': sentiment_list
             }
         )
         # 表头
@@ -192,7 +197,7 @@ def get_comments(keyword, max_page, time):
     df.to_csv(path, index=False, encoding='utf_8_sig')
     print('数据清洗完成')
 
-def mainloop():
+def mainloop(model_tagger):
     while True:
         t = str(datetime.datetime.now())[:-10].replace(':', '-')
         # 话题简单跟踪
@@ -201,11 +206,13 @@ def mainloop():
         topic_list = topics
         rank_list = list(np.arange(len(topic_list)))
         time_list = [t] * len(topic_list)
+        topic_tag_list = model_tagger.topic_tag(topic_list)
         df = pd.DataFrame(
             {
                 '话题': topic_list,
                 '排名': rank_list,
                 '时刻': time_list,
+                '话题分类': topic_tag_list
             }
         )
         if os.path.exists(file_name):
@@ -222,4 +229,6 @@ def mainloop():
         # 休息一会（微博热榜每十分钟刷新一次）
         time.sleep(600)
 
-mainloop()
+if __name__ == '__main__':
+    model_tagger = API.model_tagger()
+    mainloop()
