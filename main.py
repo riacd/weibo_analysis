@@ -2,14 +2,13 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import time
-from tqdm import tqdm
 import os
 from jsonpath import jsonpath  # 解析json数据
 import pandas as pd  # 存取csv文件
 import datetime  # 转换时间用
 import numpy as np
 import API
-
+import torch
 
 def get_topics():
     url = r'https://www.weibo.cn/'
@@ -182,7 +181,7 @@ def get_comments(keyword, max_page, time, model_tagger):
             header = None
         else:
             header = ['页码', '微博id', '微博作者', '发布时间', '微博内容', '转发数', '评论数',
-                      '点赞数', '发布于', 'ip属地_城市', 'ip属地_省份', 'ip属地_国家']  # csv文件头
+                      '点赞数', '发布于', 'ip属地_城市', 'ip属地_省份', 'ip属地_国家', '情感']  # csv文件头
         # 保存到csv文件
 
         df.to_csv(path, mode='a+', index=False,
@@ -218,12 +217,12 @@ def mainloop(model_tagger):
         if os.path.exists(file_name):
             header = None
         else:
-            header = ['话题', '排名', '时刻']  # csv文件头
+            header = ['话题', '排名', '时刻', '话题分类']  # csv文件头
         df.to_csv(file_name, mode='a+', index=False, header=header, encoding='utf_8_sig')
         
         # 话题评论留档
         for topic in topics:
-            get_comments(topic, 5, t)
+            get_comments(topic, 5, t, model_tagger)
             time.sleep(1) # 稍微有点怕被反爬
         
         # 休息一会（微博热榜每十分钟刷新一次）
@@ -231,4 +230,4 @@ def mainloop(model_tagger):
 
 if __name__ == '__main__':
     model_tagger = API.model_tagger()
-    mainloop()
+    mainloop(model_tagger)

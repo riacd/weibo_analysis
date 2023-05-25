@@ -18,4 +18,13 @@ def search_topic(topic): # 话题名部分匹配（包含关系）
                 res.append((i, str(df[df['话题']==i]['时刻'].values[0]), int(df[df['话题']==i]['排名']))) # (话题, 时刻, 排名)
     return res
 
-print(search_topic('女生'))
+# 给定时域/话题的分地区舆情分析
+def analyze_region(start_time, end_time, topic=None, search=False): # 时刻格式: '2023-05-25 11-04'
+    region_list = []
+    for t in os.listdir('评论/'):
+        if t >= start_time and t <= end_time:
+
+
+# print(search_topic('女生'))
+
+# analyze_region(1,2)
