@@ -54,10 +54,13 @@ def get_comments(keyword, max_page, time):
 
     file_name = '{}.csv'.format(keyword)
 
-    path = time + '/' + file_name
+    path = '评论/' + time + '/' + file_name
 
-    if not os.path.exists(time):
-        os.mkdir(time)
+    if not os.path.exists('评论'):
+        os.mkdir('评论')
+
+    if not os.path.exists('评论/' + time):
+        os.mkdir('评论/' + time)
 
     # # 如果csv文件存在，先删除之
     # if os.path.exists(file_name):
