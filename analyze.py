@@ -2,21 +2,30 @@ import os
 import pandas as pd
 
 def trace_topic(topic): # 话题名完全匹配
-    res = []
+    time = []
+    rank = []
     for csv_name in os.listdir('话题跟踪/'):
         df = pd.read_csv('话题跟踪/' + csv_name)
         if topic in list(df['话题']):
-            res.append((str(df[df['话题']==topic]['时刻'].values[0]), int(df[df['话题']==topic]['排名']))) # (时刻, 排名)
-    return res
+            time.append(str(df[df['话题']==topic]['时刻'].values[0]))
+            rank.append(str(df[df['话题'] == topic]['排名'].values[0]))
+            # res.append([str(df[df['话题']==topic]['时刻'].values[0]), str(df[df['话题']==topic]['排名'].values[0])]) # (时刻, 排名)
+    return time, rank
 
 def search_topic(topic): # 话题名部分匹配（包含关系）
-    res = []
+    # res = []
+    topic = []
+    time = []
+    rank = []
     for csv_name in os.listdir('话题跟踪/'):
         df = pd.read_csv('话题跟踪/' + csv_name)
         for i in list(df['话题']):
             if topic in i:
-                res.append((i, str(df[df['话题']==i]['时刻'].values[0]), int(df[df['话题']==i]['排名'].values[0]))) # (话题, 时刻, 排名)
-    return res
+                topic.append(i)
+                time.append(str(df[df['话题'] == topic]['时刻'].values[0]))
+                rank.append(str(df[df['话题'] == topic]['排名'].values[0]))
+                # res.append((i, str(df[df['话题']==i]['时刻'].values[0]), int(df[df['话题']==i]['排名'].values[0]))) # (话题, 时刻, 排名)
+    return topic, time, rank
 
 # 给定时域/话题的分地区舆情分析
 def analyze_region(start_time='0', end_time='9', topic=None, search=False): # 时刻格式: '2023-05-25 11-04'

@@ -4,14 +4,11 @@ import pandas as pd
 import numpy as np
 import datetime
 import matplotlib.pyplot as plt
-import streamlit as st
+import re
+import os
 
-fig = plt.figure()
 
 
-def call_analyse_key(time: str, key: str):
-    t = Thread(target=weibo_analyse.sentiment_analysis_by_topic, args=[time, key])
-    t.start()
 
 
 class model_tagger:
@@ -54,8 +51,19 @@ class weibo_analyse:
         return np.array(pd.read_csv(path))
 
     @staticmethod
+    def get_time_list():
+       return [t for t in os.listdir('评论/')]
+
+
+    @staticmethod
     def datetime2str(datetime_obj):
         return str(datetime_obj)[:16].replace(':', '-')
+
+    @staticmethod
+    def str2datetime(datetime_str):
+        args = re.split('[^0123456789]+', datetime_str)
+        args = [int(arg) for arg in args]
+        return datetime.datetime(*args)
 
     @staticmethod
     def sentiment_analysis_by_topic(time: str, topic: str):
@@ -74,6 +82,7 @@ class weibo_analyse:
         plt.axis('equal')  # 该行代码使饼图长宽相等
         plt.title('话题评论情感占比', fontdict={'size': 15})
         plt.legend(loc="upper right", fontsize=10, bbox_to_anchor=(1.1, 1.05), borderaxespad=0.3)  # 添加图例
+        # plt.show()
         print('OK')
 
 
@@ -85,3 +94,6 @@ class weibo_analyse:
 
     def topic_classification_with_time(self):
         pass
+
+if __name__ == '__main__':
+    print(weibo_analyse.str2datetime('2023-05-25 21-12'))
