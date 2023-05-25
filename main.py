@@ -8,7 +8,7 @@ import pandas as pd  # 存取csv文件
 import datetime  # 转换时间用
 import numpy as np
 import API
-import torch
+from tqdm import tqdm
 
 def get_topics():
     url = r'https://www.weibo.cn/'
@@ -69,7 +69,7 @@ def get_comments(keyword, max_page, time, model_tagger):
     #     print('微博清单存在，已删除: {}'.format(file_name))
 
     for page in range(2, max_page + 2):
-        print('===开始爬取第{}页微博==='.format(page))
+        # print('===开始爬取第{}页微博==='.format(page))
         # 请求地址
         url = 'https://m.weibo.cn/api/container/getIndex'
         # 请求参数
@@ -80,11 +80,11 @@ def get_comments(keyword, max_page, time, model_tagger):
         }
         # 发送请求
         r = requests.get(url, headers=headers, params=params)
-        print(r.status_code)
+        # print(r.status_code)
         # pprint(r.json())
         # 解析json数据
         cards = r.json()["data"]["cards"]
-        print(len(cards))
+        # print(len(cards))
         region_name_list = []
         status_city_list = []
         status_province_list = []
@@ -119,7 +119,7 @@ def get_comments(keyword, max_page, time, model_tagger):
         # 微博内容-正则表达式数据清洗
         dr = re.compile(r'<[^>]+>', re.S)
         text2_list = []
-        print('text_list is:')
+        # print('text_list is:')
         # print(text_list)
         if not text_list:  # 如果未获取到微博内容，进入下一轮循环
             continue
@@ -152,12 +152,12 @@ def get_comments(keyword, max_page, time, model_tagger):
         # 点赞数
         attitudes_count_list = jsonpath(cards, '$..mblog.attitudes_count')
         # 把列表数据保存成DataFrame数据
-        print('id_list:', len(id_list))
-        print(len(time_list))
-        print('region_name_list:', len(region_name_list))
-        print(len(status_city_list))
-        print(len(status_province_list))
-        print(len(status_country_list))
+        # print('id_list:', len(id_list))
+        # print(len(time_list))
+        # print('region_name_list:', len(region_name_list))
+        # print(len(status_city_list))
+        # print(len(status_province_list))
+        # print(len(status_country_list))
 
         df = pd.DataFrame(
             {
@@ -186,7 +186,7 @@ def get_comments(keyword, max_page, time, model_tagger):
 
         df.to_csv(path, mode='a+', index=False,
                   header=header, encoding='utf_8_sig')
-        print('csv保存成功:{}'.format(file_name))
+        # print('csv保存成功:{}'.format(file_name))
 
     # 数据清洗-去重
     df = pd.read_csv(path)
@@ -194,7 +194,7 @@ def get_comments(keyword, max_page, time, model_tagger):
     df.drop_duplicates(subset=['微博id'], inplace=True, keep='first')
     # 再次保存csv文件
     df.to_csv(path, index=False, encoding='utf_8_sig')
-    print('数据清洗完成')
+    # print('这波搞定了')
 
 def mainloop(model_tagger):
     while True:
@@ -221,10 +221,12 @@ def mainloop(model_tagger):
         df.to_csv(file_name, mode='a+', index=False, header=header, encoding='utf_8_sig')
         
         # 话题评论留档
-        for topic in topics:
-            get_comments(topic, 5, t, model_tagger)
+        for topic in tqdm(topics):
+            get_comments(topic, 10, t, model_tagger)
             time.sleep(1) # 稍微有点怕被反爬
         
+        print(t + ' 这波搞定了')
+
         # 休息一会（微博热榜每十分钟刷新一次）
         time.sleep(600)
 
