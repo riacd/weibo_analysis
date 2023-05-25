@@ -191,10 +191,10 @@ def get_comments(keyword, max_page, time):
 
 def mainloop():
     while True:
+        t = str(datetime.datetime.now())[:-10].replace(':', '-')
         # 话题简单跟踪
-        file_name = '话题跟踪.csv'
+        file_name = '话题跟踪/' + t + '.csv'
         topics = get_topics()
-        t = str(datetime.datetime.now())[:-7].replace(':', '-')
         topic_list = topics
         rank_list = list(np.arange(len(topic_list)))
         time_list = [t] * len(topic_list)
