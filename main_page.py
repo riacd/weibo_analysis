@@ -42,7 +42,7 @@ with topic_analyze_tab:
         key=10)
     show_time_str = API.weibo_analyse.datetime2str(show_time)
     st.write("当前展示时间为", show_time_str)
-    topic_words = st.text_input(label='话题', key=1)
+    topic_words = st.text_input(label='话题', value='上海迪士尼6月23日起门票调价', key=1)
     time_str = '2023-05-25 18-18'
     st.button("开始分析", key=2, on_click=call_analyse_key, args=[time_str, topic_words])
     st.pyplot(fig, clear_figure=False)
@@ -89,11 +89,13 @@ with topic_region_analyze_tab:
     label="时间区段",
     options=API.weibo_analyse.get_time_list(),
     value=('2023-05-25 11-04', '2023-05-25 18-18'))
-    topic_words = st.text_input(label='话题', key=5)
+    topic_words = st.text_input(label='话题', value='上海迪士尼6月23日起门票调价', key=15)
     search_flag = st.checkbox(label='模糊搜索')
     region_button_clicked = st.button("开始分析", key=12)
     if region_button_clicked:
-        analyze.analyze_region(start_time, end_time, topic_words, search_flag)
+        region_dict = analyze.analyze_region(start_time, end_time, topic_words, search_flag)
+        print(region_dict)
+        st.dataframe(region_dict)
 
 
 

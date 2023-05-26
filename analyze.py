@@ -71,9 +71,9 @@ def analyze_region(start_time='0', end_time='9', topic=None, search=False): # æ—
 
     for region in region_dict:
         if len(region_dict[region]) == 0:
-            continue
+            region_dict[region] = 'nan'
         else:
-            region_dict[region] = sum(region_dict[region]) / len(region_dict[region])
+            region_dict[region] = str(sum(region_dict[region]) / len(region_dict[region]))
 
     return region_dict
 
