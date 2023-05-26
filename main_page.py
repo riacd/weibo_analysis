@@ -37,14 +37,13 @@ def call_analyse_key(time: str, key: str):
 topic_analyze_tab, topic_hot_analyze_tab, topic_key_analyze_tab, topic_region_analyze_tab = st.tabs(['话题分析', '话题热度分析','话题关键词分析', '话题区域及时域分析'])
 with topic_analyze_tab:
     show_time = st.select_slider(
-        "展示时间",
+        "回溯时间",
         options=API.weibo_analyse.get_time_list(),
         key=10)
     show_time_str = API.weibo_analyse.datetime2str(show_time)
     st.write("当前展示时间为", show_time_str)
     topic_words = st.text_input(label='话题', value='上海迪士尼6月23日起门票调价', key=1)
-    time_str = '2023-05-25 18-18'
-    st.button("开始分析", key=2, on_click=call_analyse_key, args=[time_str, topic_words])
+    st.button("开始分析", key=2, on_click=call_analyse_key, args=[show_time_str, topic_words])
     st.pyplot(fig, clear_figure=False)
 
 with topic_hot_analyze_tab:
@@ -64,24 +63,39 @@ with topic_hot_analyze_tab:
 
 
 with topic_key_analyze_tab:
-    topic_key_words = st.text_input(label='话题关键词')
-    st.button("开始分析", key=4, on_click=call_analyse_key, args=[time_str, topic_key_words])
+    topic_key_words = st.text_input(label='话题关键词', value='上海迪士尼6月23日起门票调价')
+    key_hot_button_clicked = st.button("开始分析", key=30)
+    if key_hot_button_clicked:
+        topic, time, rank = analyze.search_topic(topic_key_words)
+        time = [str(API.weibo_analyse.str2datetime(time_str)) for time_str in time]
+        np_data = np.array([topic, time, rank]).T
 
-    region_dict = analyze.analyze_region(topic=topic_key_words)
+        print(np_data)
+        chart_data = pd.DataFrame(
+            np_data,
+            columns=['topic', 'time', 'rank'])
 
-    chart_data = pd.DataFrame(
-        np.random.randn(200, 3),
-        columns=['time', 'rank', 'topic'])
+        st.vega_lite_chart(chart_data, {
+            'mark': {'type': 'circle', 'tooltip': True},
+            'encoding': {
+                'x': {'field': 'time', 'type': 'temporal'},
+                'y': {'field': 'rank', 'type': 'quantitative'},
+                # 'size': {'field': 'topic', 'type': 'nominal'},
+                'color': {'field': 'topic', 'type': 'nominal'},
+            },
+        })
 
-    st.vega_lite_chart(chart_data, {
-        'mark': {'type': 'circle', 'tooltip': True},
-        'encoding': {
-            'x': {'field': 'time', 'type': 'quantitative'},
-            'y': {'field': 'rank', 'type': 'quantitative'},
-            'size': {'field': 'topic', 'type': 'quantitative'},
-            'color': {'field': 'topic', 'type': 'quantitative'},
-        },
-    })
+
+        st.vega_lite_chart(chart_data, {
+            # 'mark': {'type': 'circle', 'tooltip': True},
+            'mark': 'line',
+            'encoding': {
+                'x': {'field': 'time', 'type': 'temporal'},
+                'y': {'field': 'rank', 'type': 'quantitative'},
+                # 'size': {'field': 'topic', 'type': 'nominal'},
+                'color': {'field': 'topic', 'type': 'nominal'},
+            },
+        })
 
 
 with topic_region_analyze_tab:
