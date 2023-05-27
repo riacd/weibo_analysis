@@ -77,6 +77,24 @@ def analyze_region(start_time='0', end_time='9', topic=None, search=False): # �
 
     return region_dict
 
-res = analyze_region(topic=None, search=True)
+def topic_classification(start_time='0', end_time='9'): # 分析一段时间内话题的种类分布
+    classification_list = ['financial news', 'International news', 'mainland China politics', 'culture', 'entertainment', 'sports', 'others']
+    classification_dict = {}
+    for classification in classification_list:
+        classification_dict[classification] = 0
+    for csv in os.listdir('话题跟踪/'):
+        t = csv[:-4]
+        if t >= start_time and t <= end_time:
+            df = pd.read_csv('话题跟踪/' + csv)
+            for i, v in enumerate(df['话题分类']):
+                if v in classification_list:
+                    classification_dict[v] += 1
+                else:
+                    classification_dict['others'] += 1
+    return classification_dict
 
-print(res)
+# res = analyze_region(topic=None, search=True)
+
+# print(res)
+
+print(topic_classification())
