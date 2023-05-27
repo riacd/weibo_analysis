@@ -12,7 +12,7 @@ fig = plt.figure()
 
 
 def sentiment_analysis_by_topic(time: str, topic: str):
-    print('sentiment_analysis_by_topic')
+    print('sentiment_analysis_by_topic: time(', time, ') topic(', topic, ')')
     path = './评论/' + time + '/' + topic + '.csv'
     sizes = [0, 0, 0, 0, 0]
     pd_data = pd.read_csv(path)
@@ -26,25 +26,31 @@ def sentiment_analysis_by_topic(time: str, topic: str):
     plt.axis('equal')  # 该行代码使饼图长宽相等
     plt.title('comment sentiment', fontdict={'size': 15})
     plt.legend(loc="upper right", fontsize=10, bbox_to_anchor=(1.1, 1.05), borderaxespad=0.3)  # 添加图例
-    print('OK')
-
-def call_analyse_key(time: str, key: str):
-    t = Thread(target=sentiment_analysis_by_topic, args=[time, key])
-    t.start()
+    print('sizes: ', sizes)
+    st.pyplot(fig, clear_figure=True)
+    print('sentiment plot_complete')
 
 
 
-topic_analyze_tab, topic_hot_analyze_tab, topic_key_analyze_tab, topic_region_analyze_tab, topic_classification_analyze_tab = st.tabs(['话题分析', '话题热度分析','话题关键词分析', '话题区域及时域分析', '话题分类'])
-with topic_analyze_tab:
+
+sentiment_analyze_tab, topic_hot_analyze_tab, topic_key_analyze_tab, topic_region_analyze_tab, topic_classification_analyze_tab = st.tabs(['评论情感分析', '话题热度分析','话题关键词分析', '话题区域及时域分析', '话题分类'])
+time_list = API.weibo_analyse.get_time_list()
+print(time_list)
+with sentiment_analyze_tab:
     show_time = st.select_slider(
         "回溯时间",
-        options=API.weibo_analyse.get_time_list(),
+        options=time_list,
+        value=time_list[0],
         key=10)
     show_time_str = API.weibo_analyse.datetime2str(show_time)
     st.write("当前展示时间为", show_time_str)
-    topic_words = st.text_input(label='话题', value='上海迪士尼6月23日起门票调价', key=1)
-    st.button("开始分析", key=2, on_click=call_analyse_key, args=[show_time_str, topic_words])
-    st.pyplot(fig, clear_figure=True)
+    # topic_words = st.text_input(label='话题', value='上海迪士尼6月23日起门票调价', key=1)
+    np_arr = API.weibo_analyse.read_csv('话题跟踪/'+show_time_str+'.csv')
+    topic_array = [np_arr[i][0] for i in range(np_arr.shape[0])]
+    topic_words = st.selectbox(label='话题', options=topic_array)
+    sentiment_analyze_button = st.button("开始分析", key=2)
+    if sentiment_analyze_button:
+        sentiment_analysis_by_topic(show_time_str, topic_words)
 
 with topic_hot_analyze_tab:
     topic_hot_words = st.text_input(label='话题', key=3, value='上海迪士尼6月23日起门票调价')
@@ -101,8 +107,8 @@ with topic_key_analyze_tab:
 with topic_region_analyze_tab:
     start_time, end_time = st.select_slider(
     label="时间区段",
-    options=API.weibo_analyse.get_time_list(),
-    value=('2023-05-25 11-04', '2023-05-25 18-18'), key=101)
+    options=time_list,
+    value=(time_list[0], time_list[2]), key=101)
     topic_words = st.text_input(label='话题', value='上海迪士尼6月23日起门票调价', key=15)
     search_flag = st.checkbox(label='模糊搜索')
     region_button_clicked = st.button("开始分析", key=12)
@@ -114,8 +120,8 @@ with topic_region_analyze_tab:
 with topic_classification_analyze_tab:
     start_time_, end_time_ = st.select_slider(
     label="时间区段",
-    options=API.weibo_analyse.get_time_list(),
-    value=('2023-05-25 11-04', '2023-05-25 18-18'), key=102)
+    options=time_list,
+    value=(time_list[0], time_list[2]), key=102)
     classification_button_clicked = st.button("开始分析", key=13)
     if classification_button_clicked:
         classification_dict = analyze.topic_classification(start_time_, end_time_)

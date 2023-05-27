@@ -46,8 +46,8 @@ class weibo_analyse:
     def __init__(self):
         self.database = {}
 
-
-    def read_csv(self, path):
+    @staticmethod
+    def read_csv(path):
         return np.array(pd.read_csv(path))
 
     @staticmethod
