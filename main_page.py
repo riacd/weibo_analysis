@@ -7,9 +7,7 @@ import pandas as pd
 import analyze
 from bokeh.plotting import figure
 import numpy as np
-
-fig = plt.figure()
-
+import os
 
 def sentiment_analysis_by_topic(time: str, topic: str):
     print('sentiment_analysis_by_topic: time(', time, ') topic(', topic, ')')
@@ -30,8 +28,14 @@ def sentiment_analysis_by_topic(time: str, topic: str):
     st.pyplot(fig, clear_figure=True)
     print('sentiment plot_complete')
 
+def auto_thread():
+    f = os.popen('./main.py')
 
-
+auto_button = st.sidebar.button('启动自动爬取')
+if auto_button:
+    st.sidebar.write('爬虫脚本运行中')
+    t = Thread(target=lambda: os.popen('main.py'))
+    t.start()
 
 sentiment_analyze_tab, topic_hot_analyze_tab, topic_key_analyze_tab, topic_region_analyze_tab, topic_classification_analyze_tab = st.tabs(['评论情感分析', '话题热度分析','话题关键词分析', '话题区域及时域分析', '话题分类'])
 time_list = API.weibo_analyse.get_time_list()
@@ -115,7 +119,7 @@ with topic_region_analyze_tab:
     if region_button_clicked:
         region_dict = analyze.analyze_region(start_time, end_time, topic_words, search_flag)
         print(region_dict)
-        st.dataframe(region_dict)
+        st.dataframe(region_dict, width=700)
 
 with topic_classification_analyze_tab:
     start_time_, end_time_ = st.select_slider(
