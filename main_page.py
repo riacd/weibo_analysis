@@ -5,9 +5,10 @@ import API
 from threading import Thread
 import pandas as pd
 import analyze
-from bokeh.plotting import figure
 import numpy as np
 import os
+
+fig = plt.figure()
 
 def sentiment_analysis_by_topic(time: str, topic: str):
     print('sentiment_analysis_by_topic: time(', time, ') topic(', topic, ')')
@@ -28,16 +29,13 @@ def sentiment_analysis_by_topic(time: str, topic: str):
     st.pyplot(fig, clear_figure=True)
     print('sentiment plot_complete')
 
-def auto_thread():
-    f = os.popen('./main.py')
-
 auto_button = st.sidebar.button('启动自动爬取')
 if auto_button:
     st.sidebar.write('爬虫脚本运行中')
     t = Thread(target=lambda: os.popen('main.py'))
     t.start()
 
-sentiment_analyze_tab, topic_hot_analyze_tab, topic_key_analyze_tab, topic_region_analyze_tab, topic_classification_analyze_tab = st.tabs(['评论情感分析', '话题热度分析','话题关键词分析', '话题区域及时域分析', '话题分类'])
+sentiment_analyze_tab, topic_key_analyze_tab, topic_region_analyze_tab, topic_classification_analyze_tab = st.tabs(['评论情感分析', '话题热度分析', '话题区域及时域分析', '话题分类'])
 time_list = API.weibo_analyse.get_time_list()
 print(time_list)
 with sentiment_analyze_tab:
@@ -55,20 +53,6 @@ with sentiment_analyze_tab:
     sentiment_analyze_button = st.button("开始分析", key=2)
     if sentiment_analyze_button:
         sentiment_analysis_by_topic(show_time_str, topic_words)
-
-with topic_hot_analyze_tab:
-    topic_hot_words = st.text_input(label='话题', key=3, value='上海迪士尼6月23日起门票调价')
-    button_clicked = st.button("开始分析")
-    if button_clicked:
-        times, ranks = analyze.trace_topic(topic_hot_words)
-        times = [API.weibo_analyse.str2datetime(time) for time in times]
-        p = figure(
-            title='话题排名变动',
-            x_axis_label='时间',
-            y_axis_label='排名')
-        p.line(times, ranks, legend_label='趋势', line_width=2)
-
-        st.bokeh_chart(p)
 
 
 
