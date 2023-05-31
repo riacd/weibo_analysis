@@ -188,13 +188,16 @@ def get_comments(keyword, max_page, time, model_tagger):
                   header=header, encoding='utf_8_sig')
         # print('csv保存成功:{}'.format(file_name))
 
-    # 数据清洗-去重
-    df = pd.read_csv(path)
-    # 删除重复数据
-    df.drop_duplicates(subset=['微博id'], inplace=True, keep='first')
-    # 再次保存csv文件
-    df.to_csv(path, index=False, encoding='utf_8_sig')
-    # print('这波搞定了')
+    try:
+        # 数据清洗-去重
+        df = pd.read_csv(path)
+        # 删除重复数据
+        df.drop_duplicates(subset=['微博id'], inplace=True, keep='first')
+        # 再次保存csv文件
+        df.to_csv(path, index=False, encoding='utf_8_sig')
+        # print('这波搞定了')
+    except:
+        print('error: 目标路径不存在')
 
 def mainloop(model_tagger):
     while True:
