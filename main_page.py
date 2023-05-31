@@ -35,7 +35,7 @@ if auto_button:
     t = Thread(target=lambda: os.popen('main.py'))
     t.start()
 
-sentiment_analyze_tab, topic_key_analyze_tab, topic_region_analyze_tab, topic_classification_analyze_tab = st.tabs(['评论情感分析', '话题热度分析', '话题区域及时域分析', '话题分类'])
+sentiment_analyze_tab, topic_key_analyze_tab, topic_region_analyze_tab, topic_classification_analyze_tab = st.tabs(['话题情感分析', '话题热度分析', '区域舆情分析', '话题分类分析'])
 time_list = API.weibo_analyse.get_time_list()
 print(time_list)
 with sentiment_analyze_tab:
